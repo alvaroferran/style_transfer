@@ -1,0 +1,24 @@
+# Target images
+content_image: "imgs/content.jpg"
+style_image: "imgs/style.jpg"
+
+# Image parameters
+image_height: 400   # Output height, width gets calculated from content ratio
+generate_gif: True  # Create a gif with all the generated images
+
+# Generation loop
+number_iterations: 15  # Number of pictures to generate
+steps_per_iteration: 30  # Number of gradient steps per iteration
+
+# Losses
+content_weight: 0.0125  # Higher values give more accurate content
+variation_weight: 0.001  # Higher values give lower pixelization
+style_weight: 1.
+
+content_layer: "block3_conv2"  # Low layers get details, high ones get context
+style_layers:   # Layers to get style from
+- "block1_conv1"
+- "block2_conv1"
+- "block3_conv1"
+- "block4_conv1"
+- "block5_conv1"
