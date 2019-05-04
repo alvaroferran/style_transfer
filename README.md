@@ -1,7 +1,10 @@
 # Style Transfer
 Neural style transfer utility based on F. Chollet's Deep Learning with Python
 and using the VGG16 network.
-Generated images are created
+
+Generated images are created in the output folder, in a directory with the
+names of the content and style images. If the corresponding setting is set to
+true, a gif showing the whole process will be generated as well.
 
 ### Usage
 
@@ -12,7 +15,8 @@ The content and style images contain the paths to the corresponding images.
 To simplify the generation of new images, all share the same dimensions, set
 by the "image_height" parameter.
 
-At the end of the process a gif can be created showing the whole generation process. This uses the command-line program ImageMagick, so it has to be
+At the end of the process a gif can be created showing the whole generation
+process. This uses the command-line program ImageMagick, so it has to be
 installed beforehand.
 
 The style is transferred by iterations, with a new image being saved at the
