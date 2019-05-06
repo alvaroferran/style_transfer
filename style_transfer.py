@@ -6,8 +6,6 @@ F. Chollet's implementation in Deep Learning with Python
 import os
 import time
 import yaml
-import subprocess
-import glob
 from keras import backend as K
 from keras.applications import vgg16
 from keras.preprocessing.image import load_img
@@ -16,18 +14,17 @@ from scipy.misc import imsave
 from libs.utils import preprocess_image, get_dimensions, deprocess_image
 from libs.losses import get_total_loss
 from libs.evaluator import Evaluator
+from libs.save import save_image, save_gif
 
 
 # Load hyper parameters
 with open("params.yml", 'r') as ymlfile:
     config = yaml.load(ymlfile)
 
-
 # Data definition
 content_image_path = config["content_image"]
 style_image_path = config["style_image"]
 target_height = config["image_height"]
-iterations = config["number_iterations"]
 
 # If output directory doesn't exist create it
 if not os.path.isdir("output"):
@@ -58,7 +55,7 @@ evaluator = Evaluator(generated_image, loss, img_dims)
 x = preprocess_image(content_image_path, img_dims)
 x = x.flatten()  # Optimizer fmin_l_bfgs_b can only work with vectors
 gradient_steps = config["steps_per_iteration"]
-
+iterations = config["number_iterations"]
 for i in range(iterations):
     print(f"\nStarting iteration {i}")
     start_time = time.time()
@@ -69,27 +66,14 @@ for i in range(iterations):
     img = x.copy().reshape((*img_dims, 3))
     img = deprocess_image(img)
     # Save current generated image
-    content_image_name = os.path.split(content_image_path)[1][:-4]
-    style_image_name = os.path.split(style_image_path)[1][:-4]
-    name = f"{content_image_name}_{style_image_name}"
-    dir_path = os.path.join("output", name)
-    if not os.path.isdir(dir_path):
-        os.mkdir(dir_path)
-    img_name = name + f"_{i+1}.jpg"
-    img_path = os.path.join(dir_path, img_name)
-    imsave(img_path, img)
-    print(f"Image {img_path} saved")
+    save_name = save_image(img, content_image_path, style_image_path)
     end_time = time.time()
     print(f"Iteration {i} completed in {end_time-start_time} seconds")
 # Save orignal content image resized
 img = load_img(content_image_path, target_size=img_dims)
-imsave(os.path.join(dir_path, name+"_0.jpg"), img)
+dir_path = os.path.join("output", save_name)
+imsave(os.path.join(dir_path, save_name+"_0.jpg"), img)
 
 # Save as gif
 if config["generate_gif"]:
-    os.chdir(dir_path)
-    img = name + "*.jpg"
-    gif = name + ".gif"
-    cmd = "convert " + "-resize " + "100% " + "-delay " + "50 " + "-loop " +\
-          "0 " + img + " " + gif
-    subprocess.call(cmd, shell=True)
+    save_gif(save_name)
